@@ -41,9 +41,10 @@ app.use('/api/contributions', require('./routes/contributions'));
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
-});
+
 app.get('/', (req, res) => {
   res.json({ status: 'DevCollab API running', timestamp: new Date().toISOString() });
+});
 
 // Socket.io
 initializeSocket(io);
