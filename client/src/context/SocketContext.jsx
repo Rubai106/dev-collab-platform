@@ -14,7 +14,7 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     if (user) {
       const token = localStorage.getItem('token');
-      const newSocket = io(window.location.hostname === 'localhost' ? 'http://localhost:5000' : '', {
+      const newSocket = io(import.meta.env.VITE_SOCKET_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000' : ''), {
         auth: { token },
       });
 
