@@ -20,6 +20,8 @@ import SkillPairing from './pages/SkillPairing';
 import TechDebtTracker from './pages/TechDebtTracker';
 import FocusMode from './pages/FocusMode';
 import ContributionDashboard from './pages/ContributionDashboard';
+import Analytics from './pages/Analytics';
+import QuickSearch from './pages/QuickSearch';
 
 function App() {
   return (
@@ -44,6 +46,8 @@ function App() {
           <Route path="/projects/:id/techdebt" element={<PrivateRoute><TechDebtTracker /></PrivateRoute>} />
           <Route path="/projects/:id/focus" element={<PrivateRoute><FocusMode /></PrivateRoute>} />
           <Route path="/projects/:id/contributions" element={<PrivateRoute><ContributionDashboard /></PrivateRoute>} />
+          <Route path="/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
+          <Route path="/search" element={<PrivateRoute><QuickSearch /></PrivateRoute>} />
           <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
         </Routes>
       </main>

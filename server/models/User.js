@@ -15,6 +15,7 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
       trim: true,
+      index: true,
     },
     password: {
       type: String,
@@ -42,6 +43,10 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Add indexes for performance
+userSchema.index({ email: 1 });
+userSchema.index({ createdAt: -1 });
 
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import NotificationBell from './NotificationBell';
-import { FiSun, FiMoon, FiMenu, FiX, FiCode, FiLogOut } from 'react-icons/fi';
+import { FiSun, FiMoon, FiMenu, FiX, FiCode, FiLogOut, FiBarChart2, FiSearch } from 'react-icons/fi';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -32,6 +32,12 @@ const Navbar = () => {
           {user ? (
             <>
               <Link to="/dashboard" onClick={() => setMenuOpen(false)}>Dashboard</Link>
+              <Link to="/analytics" onClick={() => setMenuOpen(false)}>
+                <FiBarChart2 style={{ marginRight: '0.25rem' }} /> Analytics
+              </Link>
+              <Link to="/search" onClick={() => setMenuOpen(false)}>
+                <FiSearch style={{ marginRight: '0.25rem' }} /> Search
+              </Link>
               <Link to="/projects" onClick={() => setMenuOpen(false)}>Projects</Link>
               <Link to="/projects/create" onClick={() => setMenuOpen(false)}>Create</Link>
               <NotificationBell />

@@ -2,7 +2,9 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
+const helmet = require('helmet');
 const dotenv = require('dotenv');
+const compression = require('compression');
 const connectDB = require('./config/db');
 const { initializeSocket } = require('./socket/socket');
 
@@ -10,6 +12,10 @@ dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
+
+// Add compression middleware for faster responses
+app.use(compression());
+app.use(helmet());
 
 const configuredOrigins = (process.env.CLIENT_URL || '')
   .split(',')
@@ -46,6 +52,10 @@ const io = new Server(server, {
 app.use(cors(corsOptions));
 app.use(express.json());
 
+// Add caching middleware for GET requests
+const { cacheMiddleware } = require('./middleware/cache');
+app.use('/api', cacheMiddleware);
+
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
@@ -61,6 +71,7 @@ app.use('/api/pairing', require('./routes/pairing'));
 app.use('/api/techdebt', require('./routes/techdebt'));
 app.use('/api/focus', require('./routes/focus'));
 app.use('/api/contributions', require('./routes/contributions'));
+app.use('/api/analytics', require('./routes/analytics'));
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

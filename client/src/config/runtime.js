@@ -7,7 +7,25 @@ const readEnv = (key) => {
 
 export const getApiBaseUrl = () => {
   const apiUrl = readEnv('VITE_API_URL');
-  return apiUrl ? trimTrailingSlash(apiUrl) : '/api';
+  
+  // Check if we're on Vercel production (use relative path for API proxying)
+  if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
+    // On Vercel: use relative paths because vercel.json rewrites handle proxying
+    if (apiUrl && apiUrl.includes('render')) {
+      // Local dev or explicit API URL
+      return trimTrailingSlash(apiUrl);
+    }
+    // Production Vercel: use relative path for rewrite
+    return '/api';
+  }
+  
+  // Local development or explicit API URL
+  if (apiUrl) {
+    return trimTrailingSlash(apiUrl);
+  }
+  
+  // Fallback for local development
+  return '/api';
 };
 
 export const getSocketUrl = () => {

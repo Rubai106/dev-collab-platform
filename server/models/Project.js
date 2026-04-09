@@ -32,6 +32,7 @@ const projectSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
+      index: true,
     },
     members: [
       {
@@ -60,5 +61,8 @@ const projectSchema = new mongoose.Schema(
 );
 
 projectSchema.index({ title: 'text', description: 'text' });
+projectSchema.index({ owner: 1 });
+projectSchema.index({ status: 1, createdAt: -1 });
+projectSchema.index({ members: 1 });
 
 module.exports = mongoose.model('Project', projectSchema);
