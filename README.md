@@ -1,73 +1,127 @@
 # DevCollab - Developer Collaboration Platform
 
-A full-stack MERN application for developer collaboration — a mini GitHub + Trello + Discord for developers.
+A full-stack MERN app for developer collaboration: a mini GitHub + Trello + Discord for project teams.
 
 ## Features
 
-- **Authentication**: JWT-based registration/login
-- **Project Management**: Create, browse, join projects with team management
-- **Task Boards**: Drag-and-drop Kanban boards (To Do / In Progress / Completed)
-- **Real-time Chat**: Socket.io-powered project chat with typing indicators
-- **Notifications**: Real-time notifications for join requests, approvals, task assignments
-- **Dark/Light Mode**: Full theme support with CSS custom properties
-- **Responsive Design**: Works on desktop, tablet, and mobile
+- JWT-based authentication
+- Project creation, discovery, and team management
+- Kanban task boards
+- Real-time chat and notifications with Socket.IO
+- Dark/light theme support
+- Responsive UI for desktop and mobile
 
 ## Tech Stack
 
 ### Backend
-- Node.js + Express
+- Node.js
+- Express
 - MongoDB + Mongoose
-- Socket.io
-- JWT Authentication
-- express-validator
+- Socket.IO
+- JWT
 
 ### Frontend
-- React 18 + Vite
+- React 18
+- Vite
 - React Router v6
-- Socket.io Client
+- Socket.IO Client
 - react-beautiful-dnd
-- react-icons + react-hot-toast
 
-## Getting Started
+## Local Development
 
 ### Prerequisites
+
 - Node.js 18+
-- MongoDB (local or Atlas)
+- MongoDB local instance or MongoDB Atlas
 
 ### Setup
 
-1. **Clone & install backend dependencies**:
-   ```bash
-   cd server
-   npm install
-   ```
+1. Install dependencies:
 
-2. **Configure environment**: Copy `.env.example` to `.env` and update:
-   ```
-   PORT=5000
-   MONGO_URI=mongodb://localhost:27017/dev-collab
-   JWT_SECRET=your-secret-key-change-this
-   CLIENT_URL=http://localhost:5173
-   ```
+```bash
+npm run install:all
+```
 
-3. **Install frontend dependencies**:
-   ```bash
-   cd client
-   npm install
-   ```
+2. Create `server/.env` from `server/.env.example` and update the values:
 
-4. **Run the app**:
-   ```bash
-   # Terminal 1 - Backend
-   cd server
-   npm run dev
+```env
+NODE_ENV=development
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/dev-collab
+JWT_SECRET=change-this-secret
+CLIENT_URL=http://localhost:5173
+```
 
-   # Terminal 2 - Frontend
-   cd client
-   npm run dev
-   ```
+3. Start the backend:
 
-5. Visit `http://localhost:5173`
+```bash
+npm run dev:server
+```
+
+4. Start the frontend in a second terminal:
+
+```bash
+npm run dev:client
+```
+
+5. Open `http://localhost:5173`
+
+The Vite dev server proxies `/api` to `http://localhost:5000`, so local development still works without a frontend env file.
+
+## Production Deployment
+
+This repo is now wired for a single-origin deployment where the Express server serves the built React app in production. That is the recommended setup because it keeps:
+
+- the React app
+- the Express API
+- the Socket.IO server
+
+on the same public URL.
+
+### Recommended: Render web service
+
+The repo includes [render.yaml](./render.yaml) for a Node web service deployment.
+
+1. Push this repo to GitHub.
+2. Create a new Render Blueprint or Web Service from the repo.
+3. Set these environment variables in Render:
+
+```env
+NODE_ENV=production
+MONGO_URI=your-mongodb-atlas-uri
+JWT_SECRET=your-production-secret
+CLIENT_URL=https://your-render-app.onrender.com
+```
+
+4. Deploy.
+5. After the first successful deploy, update the repository homepage on GitHub to your new Render URL if you want the GitHub "website" link to point to the working deployment.
+
+### Optional: Split frontend/backend deployment
+
+If you still want a Vercel frontend plus a separate backend host:
+
+1. Deploy the backend somewhere that supports long-running Node processes and WebSockets, such as Render or Railway.
+2. In the frontend deployment, set:
+
+```env
+VITE_API_URL=https://your-backend.example.com/api
+VITE_SOCKET_URL=https://your-backend.example.com
+```
+
+You can copy `client/.env.example` for local reference.
+
+## Environment Files
+
+### Server
+
+See [server/.env.example](./server/.env.example).
+
+### Client
+
+The client env file is optional. See [client/.env.example](./client/.env.example).
+
+- Leave it empty for same-origin deployments where Express serves the frontend.
+- Set `VITE_API_URL` and optionally `VITE_SOCKET_URL` for split deployments.
 
 ## API Endpoints
 
@@ -93,49 +147,32 @@ A full-stack MERN application for developer collaboration — a mini GitHub + Tr
 | PUT | /api/tasks/:id | Update task |
 | PUT | /api/tasks/reorder/batch | Batch reorder tasks |
 | DELETE | /api/tasks/:id | Delete task |
-| GET | /api/messages/:pid | Get messages (paginated) |
+| GET | /api/messages/:pid | Get messages |
 | POST | /api/messages | Send message |
 | GET | /api/notifications | Get notifications |
 | GET | /api/notifications/unread-count | Unread count |
 | PUT | /api/notifications/read-all | Mark all read |
 | PUT | /api/notifications/:id/read | Mark one read |
-
-## Socket Events
-
-| Event | Direction | Description |
-|-------|-----------|-------------|
-| joinRoom | Client → Server | Join a project room |
-| leaveRoom | Client → Server | Leave a project room |
-| sendMessage | Client → Server | Send chat message |
-| newMessage | Server → Client | Receive chat message |
-| typing | Bidirectional | User typing indicator |
-| stopTyping | Bidirectional | User stopped typing |
-| taskUpdate | Client → Server | Task board changed |
-| taskUpdated | Server → Client | Receive task update |
-| sendNotification | Client → Server | Trigger notification |
-| notification | Server → Client | Receive notification |
-| onlineUsers | Server → Client | Online users list |
+| GET | /api/health | Health check |
 
 ## Project Structure
 
-```
+```text
 dev-collab-platform/
-├── server/
-│   ├── config/db.js
-│   ├── middleware/auth.js
-│   ├── models/ (User, Project, Task, Message, Notification)
-│   ├── routes/ (auth, users, projects, tasks, messages, notifications)
-│   ├── socket/socket.js
-│   └── server.js
-├── client/
-│   ├── src/
-│   │   ├── api/axios.js
-│   │   ├── components/ (Navbar, PrivateRoute, TaskCard, TaskColumn, TaskModal, NotificationBell)
-│   │   ├── context/ (AuthContext, SocketContext, ThemeContext)
-│   │   ├── pages/ (Landing, Login, Register, Dashboard, Projects, CreateProject, ProjectDetails, TaskBoard, Chat, Profile)
-│   │   ├── App.jsx
-│   │   ├── main.jsx
-│   │   └── index.css
-│   └── index.html
-└── README.md
+|-- client/
+|   |-- src/
+|   |-- .env.example
+|   |-- package.json
+|   `-- vercel.json
+|-- server/
+|   |-- config/
+|   |-- middleware/
+|   |-- models/
+|   |-- routes/
+|   |-- socket/
+|   |-- .env.example
+|   `-- server.js
+|-- package.json
+|-- render.yaml
+`-- README.md
 ```
