@@ -1,10 +1,21 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const { body, validationResult } = require('express-validator');
 const Project = require('../models/Project');
 const Notification = require('../models/Notification');
 const auth = require('../middleware/auth');
+const { deleteProjectResources } = require('../utils/deleteProjectResources');
 
 const router = express.Router();
+
+const transactionUnsupportedMessages = [
+  'Transaction numbers are only allowed on a replica set member or mongos',
+  'Standalone servers do not support transactions',
+  'Transaction support is not available',
+];
+
+const isTransactionUnsupported = (error) =>
+  transactionUnsupportedMessages.some((message) => error.message.includes(message));
 
 // GET /api/projects
 router.get('/', auth, async (req, res) => {
@@ -138,7 +149,24 @@ router.delete('/:id', auth, async (req, res) => {
       return res.status(403).json({ message: 'Only the owner can delete this project' });
     }
 
-    await Project.findByIdAndDelete(req.params.id);
+    const session = await mongoose.startSession();
+
+    try {
+      await session.withTransaction(async () => {
+        await deleteProjectResources(project._id, session);
+        await Project.findByIdAndDelete(project._id, { session });
+      });
+    } catch (error) {
+      if (!isTransactionUnsupported(error)) {
+        throw error;
+      }
+
+      await deleteProjectResources(project._id);
+      await Project.findByIdAndDelete(project._id);
+    } finally {
+      await session.endSession();
+    }
+
     res.json({ message: 'Project deleted' });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
