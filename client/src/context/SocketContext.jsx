@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from './AuthContext';
+import { getSocketUrl } from '../config/runtime';
 
 const SocketContext = createContext();
 
@@ -14,9 +15,10 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     if (user) {
       const token = localStorage.getItem('token');
-      const newSocket = io(import.meta.env.VITE_SOCKET_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000' : ''), {
-        auth: { token },
-      });
+      const socketUrl = getSocketUrl();
+      const newSocket = socketUrl
+        ? io(socketUrl, { auth: { token } })
+        : io({ auth: { token } });
 
       newSocket.on('onlineUsers', (users) => {
         setOnlineUsers(users);
