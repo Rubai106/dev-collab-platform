@@ -32,11 +32,21 @@ const PageLoader = () => (
     <div style={{
       width: '40px',
       height: '40px',
-      border: '3px solid var(--border-color)',
-      borderTopColor: 'var(--accent)',
+      border: '3px solid #e5e7eb',
+      borderTopColor: '#7c3aed',
       borderRadius: '50%',
-      animation: 'spin 1s linear infinite'
+      animation: 'spin 1s linear infinite',
+      '@keyframes spin': {
+        'from': { transform: 'rotate(0deg)' },
+        'to': { transform: 'rotate(360deg)' }
+      }
     }} />
+    <style>{`
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+    `}</style>
   </div>
 );
 
