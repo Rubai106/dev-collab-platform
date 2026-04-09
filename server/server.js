@@ -1,6 +1,5 @@
 const express = require('express');
 const http = require('http');
-const path = require('path');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -11,8 +10,6 @@ dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
-const isProduction = process.env.NODE_ENV === 'production';
-const clientDistPath = path.resolve(__dirname, '../client/dist');
 
 const configuredOrigins = (process.env.CLIENT_URL || '')
   .split(',')
@@ -22,9 +19,7 @@ const configuredOrigins = (process.env.CLIENT_URL || '')
 const allowedOrigins =
   configuredOrigins.length > 0
     ? configuredOrigins
-    : isProduction
-      ? []
-      : ['http://localhost:5173'];
+    : ['http://localhost:5173'];
 
 const isAllowedOrigin = (origin) =>
   !origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin);
@@ -71,25 +66,13 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-app.get('/api', (req, res) => {
+app.get('/', (req, res) => {
   res.json({ status: 'DevCollab API running', timestamp: new Date().toISOString() });
 });
 
-if (isProduction) {
-  app.use(express.static(clientDistPath));
-
-  app.get('*', (req, res, next) => {
-    if (req.path.startsWith('/api')) {
-      return next();
-    }
-
-    return res.sendFile(path.join(clientDistPath, 'index.html'));
-  });
-} else {
-  app.get('/', (req, res) => {
-    res.json({ status: 'DevCollab API running', timestamp: new Date().toISOString() });
-  });
-}
+app.get('/api', (req, res) => {
+  res.json({ status: 'DevCollab API running', timestamp: new Date().toISOString() });
+});
 
 // Socket.io
 initializeSocket(io);
