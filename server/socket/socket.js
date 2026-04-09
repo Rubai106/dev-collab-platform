@@ -4,13 +4,18 @@ const User = require('../models/User');
 const onlineUsers = new Map();
 
 function initializeSocket(io) {
+  // Configure socket.io for better performance
+  io.engine.ws.perMessageDeflate = true;
+  io.engine.maxHttpBufferSize = 1e6; // 1MB
+  io.defaults.ackTimeout = 60000;
+
   io.use(async (socket, next) => {
     try {
       const token = socket.handshake.auth.token;
       if (!token) return next(new Error('Authentication required'));
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await User.findById(decoded.id);
+      const user = await User.findById(decoded.id).select('_id name').lean();
       if (!user) return next(new Error('User not found'));
 
       socket.userId = user._id.toString();
@@ -25,11 +30,13 @@ function initializeSocket(io) {
     console.log(`User connected: ${socket.userName}`);
     onlineUsers.set(socket.userId, socket.id);
 
-    io.emit('onlineUsers', Array.from(onlineUsers.keys()));
+    // Send online users list with debouncing (not on every connection)
+    if (onlineUsers.size % 10 === 0 || onlineUsers.size <= 3) {
+      io.emit('onlineUsers', Array.from(onlineUsers.keys()));
+    }
 
     socket.on('joinRoom', (projectId) => {
       socket.join(projectId);
-      console.log(`${socket.userName} joined room ${projectId}`);
     });
 
     socket.on('leaveRoom', (projectId) => {
@@ -96,7 +103,9 @@ function initializeSocket(io) {
     socket.on('disconnect', () => {
       console.log(`User disconnected: ${socket.userName}`);
       onlineUsers.delete(socket.userId);
-      io.emit('onlineUsers', Array.from(onlineUsers.keys()));
+      if (onlineUsers.size % 10 === 0 || onlineUsers.size === 0) {
+        io.emit('onlineUsers', Array.from(onlineUsers.keys()));
+      }
     });
   });
 }

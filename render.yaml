@@ -5,11 +5,15 @@ services:
     plan: free
     buildCommand: npm run install:all && npm run build
     startCommand: npm start
+    healthCheckPath: /api/health
+    healthCheckInterval: 300
     envVars:
       - key: NODE_VERSION
         value: 20.18.0
       - key: NODE_ENV
         value: production
+      - key: NODE_OPTIONS
+        value: --max-old-space-size=512
       - key: MONGO_URI
         sync: false
       - key: JWT_SECRET

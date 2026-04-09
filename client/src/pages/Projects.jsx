@@ -8,15 +8,32 @@ const Projects = () => {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
-  const fetchProjects = async () => {
+  const LIMIT = 12;
+
+  const fetchProjects = async (searchQuery = '', statusQuery = '', pageNum = 0) => {
     try {
       setLoading(true);
-      const params = {};
-      if (search) params.search = search;
-      if (status) params.status = status;
+      const params = {
+        limit: LIMIT,
+        skip: pageNum * LIMIT,
+      };
+      if (searchQuery) params.search = searchQuery;
+      if (statusQuery) params.status = statusQuery;
+      
       const res = await api.get('/projects', { params });
-      setProjects(res.data);
+      const data = res.data.projects || res.data;
+      const total = res.data.total;
+      
+      if (pageNum === 0) {
+        setProjects(data);
+      } else {
+        setProjects(prev => [...prev, ...data]);
+      }
+      
+      setHasMore(data.length === LIMIT && (pageNum + 1) * LIMIT < total);
     } catch (err) {
       // silent
     } finally {
@@ -25,12 +42,20 @@ const Projects = () => {
   };
 
   useEffect(() => {
-    fetchProjects();
+    setPage(0);
+    fetchProjects(search, status, 0);
   }, [status]);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    fetchProjects();
+    setPage(0);
+    fetchProjects(search, status, 0);
+  };
+
+  const loadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchProjects(search, status, nextPage);
   };
 
   return (
@@ -61,40 +86,54 @@ const Projects = () => {
         </select>
       </div>
 
-      {loading ? (
+      {loading && projects.length === 0 ? (
         <div className="loading-screen"><div className="spinner"></div></div>
       ) : projects.length === 0 ? (
         <div className="empty-state">
           <p>No projects found matching your criteria.</p>
         </div>
       ) : (
-        <div className="project-grid">
-          {projects.map((project) => (
-            <Link to={`/projects/${project._id}`} key={project._id} className="project-card">
-              <div className="project-card-header">
-                <h3>{project.title}</h3>
-                <span className={`status-badge status-${project.status.toLowerCase().replace(' ', '-')}`}>
-                  {project.status}
-                </span>
-              </div>
-              <p>{project.description?.substring(0, 120)}...</p>
-              <div className="project-card-footer">
-                <span className="difficulty-badge">{project.difficulty}</span>
-                <div className="tech-tags">
-                  {project.techStack?.slice(0, 3).map((t, i) => (
-                    <span key={i} className="tech-tag">{t}</span>
-                  ))}
+        <>
+          <div className="project-grid">
+            {projects.map((project) => (
+              <Link to={`/projects/${project._id}`} key={project._id} className="project-card">
+                <div className="project-card-header">
+                  <h3>{project.title}</h3>
+                  <span className={`status-badge status-${project.status?.toLowerCase().replace(' ', '-')}`}>
+                    {project.status}
+                  </span>
                 </div>
-              </div>
-              <div className="project-card-meta">
-                <span className="owner-info">by {project.owner?.name}</span>
-                <span className="member-count">
-                  <FiUsers /> {project.members?.length}/{project.teamSize}
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
+                <p>{project.description?.substring(0, 120)}...</p>
+                <div className="project-card-footer">
+                  <span className="difficulty-badge">{project.difficulty}</span>
+                  <div className="tech-tags">
+                    {project.techStack?.slice(0, 3).map((t, i) => (
+                      <span key={i} className="tech-tag">{t}</span>
+                    ))}
+                  </div>
+                </div>
+                <div className="project-card-meta">
+                  <span className="owner-info">by {project.owner?.name}</span>
+                  <span className="member-count">
+                    <FiUsers /> {project.members?.length || 0}/{project.teamSize}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+          
+          {hasMore && (
+            <div style={{ textAlign: 'center', marginTop: '32px' }}>
+              <button 
+                onClick={loadMore} 
+                className="btn btn-primary"
+                disabled={loading}
+              >
+                {loading ? 'Loading...' : 'Load More'}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

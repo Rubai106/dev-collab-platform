@@ -12,8 +12,8 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const res = await api.get('/projects/my');
-        setProjects(res.data);
+        const res = await api.get('/projects/my?limit=12&skip=0');
+        setProjects(res.data.projects || res.data);
       } catch (err) {
         // silent
       } finally {
@@ -23,8 +23,8 @@ const Dashboard = () => {
     fetchProjects();
   }, []);
 
-  const ownedProjects = projects.filter((p) => p.owner._id === user._id);
-  const memberProjects = projects.filter((p) => p.owner._id !== user._id);
+  const ownedProjects = projects.filter((p) => p.owner && p.owner._id === user?._id);
+  const memberProjects = projects.filter((p) => p.owner && p.owner._id !== user?._id);
 
   if (loading) {
     return <div className="loading-screen"><div className="spinner"></div></div>;
@@ -33,7 +33,7 @@ const Dashboard = () => {
   return (
     <div className="dashboard">
       <div className="page-header">
-        <h1>Welcome, {user.name}!</h1>
+        <h1>Welcome, {user?.name}! 👋</h1>
         <Link to="/projects/create" className="btn btn-primary">
           <FiPlus /> New Project
         </Link>
@@ -76,7 +76,7 @@ const Dashboard = () => {
               <Link to={`/projects/${project._id}`} key={project._id} className="project-card">
                 <div className="project-card-header">
                   <h3>{project.title}</h3>
-                  <span className={`status-badge status-${project.status.toLowerCase().replace(' ', '-')}`}>
+                  <span className={`status-badge status-${project.status?.toLowerCase().replace(' ', '-')}`}>
                     {project.status}
                   </span>
                 </div>
@@ -88,7 +88,7 @@ const Dashboard = () => {
                     ))}
                   </div>
                   <span className="member-count">
-                    <FiUsers /> {project.members?.length}/{project.teamSize}
+                    <FiUsers /> {project.members?.length || 0}/{project.teamSize}
                   </span>
                 </div>
               </Link>

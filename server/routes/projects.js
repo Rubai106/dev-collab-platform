@@ -20,7 +20,7 @@ const isTransactionUnsupported = (error) =>
 // GET /api/projects
 router.get('/', auth, async (req, res) => {
   try {
-    const { search, status, tech } = req.query;
+    const { search, status, tech, limit = 20, skip = 0 } = req.query;
     const filter = {};
 
     if (search) {
@@ -33,12 +33,26 @@ router.get('/', auth, async (req, res) => {
       filter.techStack = { $in: tech.split(',') };
     }
 
-    const projects = await Project.find(filter)
-      .populate('owner', 'name profilePicture')
-      .populate('members', 'name profilePicture')
-      .sort({ createdAt: -1 });
+    const limitNum = Math.min(parseInt(limit), 100); // Cap at 100 results
+    const skipNum = Math.max(0, parseInt(skip));
 
-    res.json(projects);
+    const [projects, total] = await Promise.all([
+      Project.find(filter)
+        .populate('owner', 'name profilePicture')
+        .populate('members', 'name profilePicture')
+        .sort({ createdAt: -1 })
+        .limit(limitNum)
+        .skip(skipNum)
+        .lean(),
+      Project.countDocuments(filter),
+    ]);
+
+    res.json({
+      projects,
+      total,
+      limit: limitNum,
+      skip: skipNum,
+    });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }
@@ -47,14 +61,31 @@ router.get('/', auth, async (req, res) => {
 // GET /api/projects/my
 router.get('/my', auth, async (req, res) => {
   try {
-    const projects = await Project.find({
-      $or: [{ owner: req.user._id }, { members: req.user._id }],
-    })
-      .populate('owner', 'name profilePicture')
-      .populate('members', 'name profilePicture')
-      .sort({ createdAt: -1 });
+    const { limit = 20, skip = 0 } = req.query;
+    const limitNum = Math.min(parseInt(limit), 100);
+    const skipNum = Math.max(0, parseInt(skip));
 
-    res.json(projects);
+    const [projects, total] = await Promise.all([
+      Project.find({
+        $or: [{ owner: req.user._id }, { members: req.user._id }],
+      })
+        .populate('owner', 'name profilePicture')
+        .populate('members', 'name profilePicture')
+        .sort({ createdAt: -1 })
+        .limit(limitNum)
+        .skip(skipNum)
+        .lean(),
+      Project.countDocuments({
+        $or: [{ owner: req.user._id }, { members: req.user._id }],
+      }),
+    ]);
+
+    res.json({
+      projects,
+      total,
+      limit: limitNum,
+      skip: skipNum,
+    });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }
