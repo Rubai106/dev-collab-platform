@@ -28,7 +28,7 @@ const QuickSearch = () => {
     try {
       setLoading(true);
       const response = await api.get('/tasks');
-      let allTasks = response.data;
+      let allTasks = Array.isArray(response.data) ? response.data : [];
 
       // Apply text search
       allTasks = allTasks.filter(

@@ -34,7 +34,8 @@ const FocusMode = () => {
       setTeamFocus(teamRes.data);
       setStats(statsRes.data);
       setProject(projRes.data);
-      setTasks(tasksRes.data.filter((t) => t.status !== 'Completed'));
+      const tasksData = Array.isArray(tasksRes.data) ? tasksRes.data : [];
+      setTasks(tasksData.filter((t) => t.status !== 'Completed'));
     } catch (err) {
       // silent
     } finally {

@@ -24,10 +24,12 @@ const BlockerBoard = () => {
         api.get(`/blockers/${projectId}`),
         api.get(`/projects/${projectId}`),
       ]);
-      setBlockers(blockRes.data);
+      const blockersData = Array.isArray(blockRes.data) ? blockRes.data : [];
+      setBlockers(blockersData);
       setProject(projRes.data);
     } catch (err) {
       // silent
+      setBlockers([]);
     } finally {
       setLoading(false);
     }

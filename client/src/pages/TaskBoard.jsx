@@ -25,7 +25,8 @@ const TaskBoard = () => {
         api.get(`/tasks/project/${projectId}`),
         api.get(`/projects/${projectId}`),
       ]);
-      setTasks(tasksRes.data);
+      const tasksData = Array.isArray(tasksRes.data) ? tasksRes.data : [];
+      setTasks(tasksData);
       setProject(projectRes.data);
     } catch (err) {
       toast.error('Failed to load task board');
