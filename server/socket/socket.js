@@ -7,7 +7,6 @@ function initializeSocket(io) {
   // Configure socket.io for better performance
   io.engine.ws.perMessageDeflate = true;
   io.engine.maxHttpBufferSize = 1e6; // 1MB
-  io.defaults.ackTimeout = 60000;
 
   io.use(async (socket, next) => {
     try {
