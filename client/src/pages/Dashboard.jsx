@@ -13,9 +13,11 @@ const Dashboard = () => {
     const fetchProjects = async () => {
       try {
         const res = await api.get('/projects/my?limit=12&skip=0');
-        setProjects(res.data.projects || res.data);
+        const projectsData = res.data.projects || res.data || [];
+        setProjects(Array.isArray(projectsData) ? projectsData : []);
       } catch (err) {
         // silent
+        setProjects([]);
       } finally {
         setLoading(false);
       }
@@ -23,8 +25,8 @@ const Dashboard = () => {
     fetchProjects();
   }, []);
 
-  const ownedProjects = projects.filter((p) => p.owner && p.owner._id === user?._id);
-  const memberProjects = projects.filter((p) => p.owner && p.owner._id !== user?._id);
+  const ownedProjects = (Array.isArray(projects) ? projects : []).filter((p) => p.owner && p.owner._id === user?._id);
+  const memberProjects = (Array.isArray(projects) ? projects : []).filter((p) => p.owner && p.owner._id !== user?._id);
 
   if (loading) {
     return <div className="loading-screen"><div className="spinner"></div></div>;

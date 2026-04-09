@@ -34,6 +34,11 @@ export const getSocketUrl = () => {
     return trimTrailingSlash(socketUrl);
   }
 
+  // On Vercel production, use the Render backend directly
+  if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
+    return 'https://dev-collab-platform-eme5.onrender.com';
+  }
+
   const apiUrl = readEnv('VITE_API_URL');
   if (apiUrl) {
     try {

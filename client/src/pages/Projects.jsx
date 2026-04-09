@@ -24,18 +24,19 @@ const Projects = () => {
       if (statusQuery) params.status = statusQuery;
       
       const res = await api.get('/projects', { params });
-      const data = res.data.projects || res.data;
-      const total = res.data.total;
+      const data = Array.isArray(res.data.projects) ? res.data.projects : Array.isArray(res.data) ? res.data : [];
+      const total = res.data.total || data.length;
       
       if (pageNum === 0) {
         setProjects(data);
       } else {
-        setProjects(prev => [...prev, ...data]);
+        setProjects(prev => [...(Array.isArray(prev) ? prev : []), ...data]);
       }
       
       setHasMore(data.length === LIMIT && (pageNum + 1) * LIMIT < total);
     } catch (err) {
       // silent
+      if (pageNum === 0) setProjects([]);
     } finally {
       setLoading(false);
     }
