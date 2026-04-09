@@ -52,7 +52,6 @@ const taskSchema = new mongoose.Schema(
 
 // Add indexes for performance
 taskSchema.index({ project: 1, status: 1 });
-taskSchema.index({ assignedTo: 1 });
 taskSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model('Task', taskSchema);
