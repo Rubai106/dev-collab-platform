@@ -5,8 +5,8 @@
     "node": ">=18"
   },
   "scripts": {
-    "install:client": "npm install --prefix client",
-    "install:server": "npm install --prefix server",
+    "install:client": "npm ci --prefix client --include=dev",
+    "install:server": "npm ci --prefix server",
     "install:all": "npm run install:client && npm run install:server",
     "build": "npm run build --prefix client",
     "start": "npm run start --prefix server",
