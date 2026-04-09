@@ -23,7 +23,7 @@ export const getSocketUrl = () => {
     return trimTrailingSlash(socketUrl);
   }
 
-  // On Vercel production, use the Render backend directly
+  // Always use the correct Render backend for production
   if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
     return 'https://dev-collab-platform-eme5.onrender.com';
   }

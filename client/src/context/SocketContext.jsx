@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from './AuthContext';
+import { getSocketUrl } from '../config/runtime';
 
 const SocketContext = createContext();
 
@@ -15,13 +16,11 @@ export const SocketProvider = ({ children }) => {
     if (user) {
       const token = localStorage.getItem('token');
       
-      // Determine socket URL based on environment
-      let socketUrl;
-      if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-        socketUrl = 'http://localhost:5000';
-      } else {
-        // Production: always use the correct Render backend
-        socketUrl = 'https://dev-collab-platform-eme5.onrender.com';
+      // Get socket URL from runtime config
+      const socketUrl = getSocketUrl();
+      if (!socketUrl) {
+        console.error('Socket URL is not configured');
+        return;
       }
 
       const newSocket = io(socketUrl, { 
