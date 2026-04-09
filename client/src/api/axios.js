@@ -1,12 +1,7 @@
 import axios from 'axios';
-import { getApiBaseUrl } from '../config/runtime';
-
-// Get the base URL based on environment
-const baseURL = getApiBaseUrl();
 
 const api = axios.create({
-  baseURL: baseURL.startsWith('http') ? baseURL : undefined,
-  ...(baseURL.startsWith('http') ? {} : { baseURL: '/api' }),
+  baseURL: import.meta.env.VITE_API_URL || 'https://dev-collab-platform-eme5.onrender.com/api',
   timeout: 30000,
 });
 
