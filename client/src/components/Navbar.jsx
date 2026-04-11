@@ -41,7 +41,7 @@ const Navbar = () => {
               <Link to="/projects" onClick={() => setMenuOpen(false)}>Projects</Link>
               <Link to="/projects/create" onClick={() => setMenuOpen(false)}>Create</Link>
               <NotificationBell />
-              <button className="theme-toggle" onClick={toggleTheme}>
+              <button className="btn btn-icon" onClick={toggleTheme}>
                 {darkMode ? <FiSun /> : <FiMoon />}
               </button>
               <Link to="/profile" className="nav-avatar" onClick={() => setMenuOpen(false)}>
@@ -53,13 +53,13 @@ const Navbar = () => {
                   )}
                 </div>
               </Link>
-              <button className="btn-logout" onClick={handleLogout}>
+              <button className="btn btn-outline" onClick={handleLogout} style={{ marginLeft: '8px' }}>
                 <FiLogOut /> Logout
               </button>
             </>
           ) : (
             <>
-              <button className="theme-toggle" onClick={toggleTheme}>
+              <button className="btn btn-icon" onClick={toggleTheme}>
                 {darkMode ? <FiSun /> : <FiMoon />}
               </button>
               <Link to="/login" className="btn btn-outline" onClick={() => setMenuOpen(false)}>
