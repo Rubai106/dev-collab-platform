@@ -30,6 +30,10 @@ const allowedOrigins =
 const isAllowedOrigin = (origin) => {
   if (!origin) return true;
   if (allowedOrigins.length === 0) return true;
+  
+  // Implicitly allow any vercel.app deploy domains to prevent login blocks
+  if (origin.endsWith('.vercel.app')) return true;
+
   return allowedOrigins.some(allowed => 
     allowed === origin || 
     (allowed.includes('*') && new RegExp('^' + allowed.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$').test(origin))

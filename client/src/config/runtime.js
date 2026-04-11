@@ -23,18 +23,18 @@ export const getSocketUrl = () => {
     return trimTrailingSlash(socketUrl);
   }
 
-  // Fallback for production based on the observed API URL from logs
-  if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
-    return window.location.origin; // Same-origin fallback
-  }
-
   const apiUrl = readEnv('VITE_API_URL');
   if (apiUrl) {
     try {
       return new URL(apiUrl).origin;
     } catch {
-      return undefined;
+      // silent
     }
+  }
+
+  // Fallback for production if no specific API/Socket URL is provided
+  if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
+    return window.location.origin; // Same-origin fallback
   }
 
   if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
