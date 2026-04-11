@@ -32,7 +32,7 @@ export const SocketProvider = ({ children }) => {
       });
 
       newSocket.on('onlineUsers', (users) => {
-        setOnlineUsers(users);
+        setOnlineUsers(Array.isArray(users) ? users : []);
       });
 
       setSocket(newSocket);

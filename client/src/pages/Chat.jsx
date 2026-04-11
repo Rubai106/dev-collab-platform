@@ -112,7 +112,7 @@ const Chat = () => {
   }, {});
 
   const onlineMembers = project?.members?.filter((m) =>
-    onlineUsers.some((ou) => ou.userId === m._id)
+    Array.isArray(onlineUsers) && onlineUsers.some((ou) => ou.userId === m._id)
   ) || [];
 
   if (loading) return <div className="loading-screen"><div className="spinner"></div></div>;

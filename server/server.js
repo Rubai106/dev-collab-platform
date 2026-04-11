@@ -25,10 +25,16 @@ const configuredOrigins = (process.env.CLIENT_URL || '')
 const allowedOrigins =
   configuredOrigins.length > 0
     ? configuredOrigins
-    : ['http://localhost:5173'];
+    : ['http://localhost:5173', 'http://localhost:3000'];
 
-const isAllowedOrigin = (origin) =>
-  !origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin);
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
+  if (allowedOrigins.length === 0) return true;
+  return allowedOrigins.some(allowed => 
+    allowed === origin || 
+    (allowed.includes('*') && new RegExp('^' + allowed.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$').test(origin))
+  );
+};
 
 const corsOptions = {
   origin(origin, callback) {
@@ -43,8 +49,14 @@ const corsOptions = {
 
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins.length === 0 ? true : allowedOrigins,
+    origin: (origin, callback) => {
+      if (isAllowedOrigin(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error(`Origin ${origin} is not allowed by CORS for Socket.io`));
+    },
     methods: corsOptions.methods,
+    credentials: true
   },
 });
 

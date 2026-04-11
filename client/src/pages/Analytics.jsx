@@ -116,7 +116,7 @@ const Analytics = () => {
               <div className="stat-content">
                 <h3>Active Days</h3>
                 <p className="stat-value">
-                  {stats.activityTimeline.length}
+                  {Array.isArray(stats.activityTimeline) ? stats.activityTimeline.length : 0}
                 </p>
               </div>
             </div>

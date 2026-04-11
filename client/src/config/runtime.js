@@ -23,9 +23,9 @@ export const getSocketUrl = () => {
     return trimTrailingSlash(socketUrl);
   }
 
-  // Always use the correct Render backend for production
+  // Fallback for production based on the observed API URL from logs
   if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
-    return 'https://dev-collab-platform-eme5.onrender.com';
+    return window.location.origin; // Same-origin fallback
   }
 
   const apiUrl = readEnv('VITE_API_URL');
