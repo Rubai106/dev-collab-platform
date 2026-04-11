@@ -76,11 +76,24 @@ const CreateProject = () => {
           <div className="tech-input-group">
             <input
               type="text"
+              list="tech-options"
               value={techInput}
               onChange={(e) => setTechInput(e.target.value)}
               placeholder="Add a technology (e.g. React)"
               onKeyDown={(e) => e.key === 'Enter' && addTech(e)}
             />
+            <datalist id="tech-options">
+              <option value="React" />
+              <option value="Node.js" />
+              <option value="MongoDB" />
+              <option value="Express" />
+              <option value="TypeScript" />
+              <option value="Python" />
+              <option value="Django" />
+              <option value="PostgreSQL" />
+              <option value="Next.js" />
+              <option value="TailwindCSS" />
+            </datalist>
             <button type="button" className="btn btn-outline" onClick={addTech}>Add</button>
           </div>
           <div className="tech-tags">

@@ -217,6 +217,7 @@ body {
 .btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 8px 16px;
   border-radius: var(--radius);
@@ -703,6 +704,55 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+/* ===== Create Project Form Restraints ===== */
+.create-project-page {
+  padding: 40px 20px;
+}
+
+.create-project-page h1 {
+  text-align: center;
+  margin-bottom: 32px;
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.project-form {
+  max-width: 600px;
+  margin: 0 auto;
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: var(--shadow-xl);
+}
+
+.tech-input-group {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.tech-input-group input {
+  flex: 1;
+}
+
+.tech-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.remove-tag {
+  cursor: pointer;
+  margin-left: 4px;
+}
+
+.remove-tag:hover {
+  color: var(--danger-hover);
 }
 
 .project-card:hover {
